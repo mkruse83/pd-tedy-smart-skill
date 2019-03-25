@@ -49,7 +49,7 @@ class ReportStateHandler extends DeviceHandler {
     const thingName = this.getThingName(request);
     const state = await this.getDeviceState(thingName);
 
-    console.log("DEBUG: current state " + state);
+    console.log("DEBUG: current state " + JSON.stringify(state));
     return {
       event: {
         header: {
@@ -73,7 +73,7 @@ class ReportStateHandler extends DeviceHandler {
           {
             namespace: "Alexa.PowerController",
             name: "powerState",
-            value: state.reported.isOn ? "ON" : "OFF",
+            value: state.reported && state.reported.isOn ? "ON" : "OFF",
             uncertaintyInMilliseconds: 0
           }
         ]
