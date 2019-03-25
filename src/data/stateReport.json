@@ -1,0 +1,27 @@
+{
+    "properties": [
+        {
+            "namespace": "Alexa.PowerController",
+            "name": "powerState",
+            "value": "ON",
+            "timeOfSample": "2017-02-03T16:20:50Z",
+            "uncertaintyInMilliseconds": 0
+        },
+        {
+            "namespace": "Alexa.BrightnessController",
+            "name": "brightness",
+            "value": 85,
+            "timeOfSample": "2017-02-03T16:20:50Z",
+            "uncertaintyInMilliseconds": 0
+        },
+        {
+            "namespace": "Alexa.EndpointHealth",
+            "name": "connectivity",
+            "value": {
+                "value": "OK"
+            },
+            "timeOfSample": "2017-02-03T16:20:50Z",
+            "uncertaintyInMilliseconds": 0
+        }
+    ]
+}

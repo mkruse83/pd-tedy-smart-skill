@@ -1,0 +1,85 @@
+const uuidv1 = require("uuid/v1");
+const context = require("./data/stateReport.json");
+const DeviceHandler = require("./base/DeviceHandler");
+
+/**
+ * Handles stuff like this:
+{
+    "directive": {
+        "header": {
+            "namespace": "Alexa",
+            "name": "ReportState",
+            "payloadVersion": "3",
+            "messageId": "2328497e-4bbc-4b74-9877-c4b08b9a6e1b",
+            "correlationToken": "AAAAAAAAAQCOdoNlMkuO4TnmS4BVwhyeDAIAAAAAAAAE0f4PCxA4B3TWWJEpTyYbRSP4SBsTu/qyYaLRKqa1h/rlfbvRR2eX9YyLdqsNe0iF2G4efdDaPUYG3ZAWL8WAgdDF3RqENQez3+EN//u2MiNn0FgXOYZiaMdVfcBHm16qPYhIXIdarOI0LPuOouG3lCrb+NRtj2MhRhgnDknqX5XJvNhLkiAnMNgFZY9s7X3y+R7KR8O9qmsbfOnXHnEriokdAeXCHFunNjIwQYFWBwe2cI8cu7SQPY9xwLcS5WfeiQgRkWow1H4INVuaZkTWRPJ6tOHRkp+OcKFAxM9ae/nGCY4g1QBbEUTqttnHnh75Hr0Lgl51leLHdzWlNmwG6z4sl9vQi5ARU3xFV0eeDxKhQpM4D9b9S7Ak6JUOQSGA+3Tp1zuSTAyju0FH+ngKj0HCGVToraZKenpOJdHZsZvAVoGfMRh/9yonxfT346d21D/rQK++KMnGxldAUVve7ZPD8fri9FIEgRx1lEc3DKNUyOvVcBpx1YGhkmYOusr8W7KDec1EqbqVPCEy3eavKtSZD9Kk9WgxbZNgAfY89+KiU3sX7mY9PYlfeSadULHCJIAhqeC01ChSe9xhTo16WgimHIQpmP0uE9e+JAP/ESQBzNlc6SteLrvbWhJG1WlcLA0MQOM2RWWOJOeC2OJS8rpWF0p8+a/Y6ugKGbM9YYVy+ucKaPC2/USjuw=="
+        },
+        "endpoint": {
+            "scope": {
+                "type": "BearerToken",
+                "token": "Atza|IwEBIO7cMqdRG1Dij-OnunArVjneiQr2tQEnvY9UTdqTOxBesxd36FZaToAs91ux9EqHgkzb00IoT3nCMLO1iuS8vIThH2aYmvhdrwLSjoK289hdGL4_ml7qli_QEp81n703Ot0YM9BhgRb7PtLj6YyXzkza8yOra5ywiGRGqrrxztOEYIEgS_7K6udvZKSMtnGrCwd_qyWQ3NtvjkrpqJ_0zrxwqBOYyc4WvIJyaX4-a9vbllXecVmBiGt2t5X9S77sZxEWRRGanfjXv2ayBUre2X8JEeSReu0dECiFFFE35uRyohHSdyUFwL8iNb3m_7-blvNdydFcWQRG0AKeMgOkYkDYrqSev2G0cFKHb0Yxl4ndXaygMDCtu_FpcfYAZHEB6W4SQc95f1BQlm5vj6JOxeUm_WkapYYv0FQhE6Kb20LM-8hhlFe3geeskKyBxPKBT-hwxc4GPlnTM2QDMheH_JoC8XXrqwjHUtJT0Fnm-9szxrXcmChY4l8K0Xccb5JZYuKRoX-7i51-cl2sx0gslMj1"
+            },
+            "endpointId": "TEDyLight",
+            "cookie": {
+                "ted": "alexa",
+                "thingArn": "arn:aws:iot:eu-west-1:736519287593:thing/TEDyLight",
+                "thingName": "TEDyLight",
+                "thingType": "TEDy-Light",
+                "version": "1"
+            }
+        },
+        "payload": {}
+    }
+}
+ */
+class ReportStateHandler extends DeviceHandler {
+  constructor() {
+    super();
+  }
+
+  canHandle(request) {
+    const result =
+      request.directive.header.namespace === "Alexa" &&
+      request.directive.header.name === "ReportState";
+    console.log("ReportStateHandler.canHandle: canHandle=" + result);
+    return result;
+  }
+
+  async handle(request) {
+    console.log(`ReportStateHandler.handle: ${JSON.stringify(request)}`);
+    const thingName = this.getThingName(request);
+    const state = await this.getDeviceState(thingName);
+
+    console.log("DEBUG: current state " + state);
+    return {
+      event: {
+        header: {
+          messageId: uuidv1(),
+          name: "StateReport",
+          namespace: "Alexa",
+          payloadVersion: "3"
+        },
+        payload: {}
+      },
+      context: {
+        properties: [
+          {
+            namespace: "Alexa.EndpointHealth",
+            name: "connectivity",
+            value: {
+              value: "OK"
+            },
+            uncertaintyInMilliseconds: 0
+          },
+          {
+            namespace: "Alexa.PowerController",
+            name: "powerState",
+            value: state.reported.isOn ? "ON" : "OFF",
+            uncertaintyInMilliseconds: 0
+          }
+        ]
+      }
+    };
+  }
+}
+
+module.exports = ReportStateHandler;
